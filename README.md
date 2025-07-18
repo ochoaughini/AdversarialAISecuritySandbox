@@ -48,7 +48,7 @@ The choice of BUSL 1.1 reflects our commitment to building a sustainable and com
 *   **Future Openness:** A key feature of BUSL 1.1 is its time-based conversion. After a specified "Change Date" (in our case, **4 years** from the first public release), the entire codebase will automatically convert to the permissive **Apache License 2.0**. This provides a clear roadmap for the software to become fully open source in the future, allowing for unrestricted use and further community growth over time.
 *   **Compatibility:** All third-party libraries and frameworks used in this project are licensed under permissive open-source licenses (e.g., MIT, Apache 2.0), which are fully compatible with the Business Source License.
 
-For commercial licensing inquiries or if you wish to use the software as a competing service before the Change Date, please contact us at **info@lexsightllc.com**.
+For commercial licensing inquiries or if you wish to use the software as a competing service before the Change Date, please contact us at **lexsightllc@lexsightllc.com**.
 
 ## Documentation
 
