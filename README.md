@@ -1,4 +1,4 @@
-# AI Adversarial Sandbox (Professionalized)
+# AI Adversarial Sandbox
 
 This repository hosts the professionalized version of the AI Adversarial Sandbox, evolving from a simple Flask application into a robust, scalable, and secure SaaS platform.
 
