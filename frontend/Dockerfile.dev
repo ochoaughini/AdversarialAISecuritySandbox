@@ -1,0 +1,26 @@
+# Use an official Node.js runtime as a parent image
+FROM node:18-alpine
+
+# Set the working directory in the container
+WORKDIR /app
+
+# Create a non-root user and switch to it
+RUN adduser --system --group appuser
+USER appuser
+
+# Copy package.json and package-lock.json
+COPY --chown=appuser:appuser package*.json ./
+
+# Install dependencies - run as root temporarily for permissions if needed, but often npm works as non-root
+USER root
+RUN npm install
+USER appuser
+
+# Copy the rest of the application code
+COPY --chown=appuser:appuser . .
+
+# Expose the port the app runs on
+EXPOSE 3000
+
+# Command to run the development server
+CMD ["npm", "start"]

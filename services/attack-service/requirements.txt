@@ -1,0 +1,9 @@
+fastapi==0.103.2
+uvicorn==0.23.2
+pydantic==2.5.0
+httpx==0.25.0
+textattack==0.3.8
+nltk==3.8.1
+spacy==3.6.1
+sqlalchemy==2.0.21
+psycopg2-binary==2.9.9

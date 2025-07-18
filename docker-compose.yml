@@ -1,0 +1,117 @@
+version: '3.8'
+
+services:
+  # API Gateway Service
+  api-gateway:
+    build:
+      context: ./services/api-gateway
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      MODEL_SERVICE_URL: http://model-service:8001
+      ATTACK_SERVICE_URL: http://attack-service:8002
+      MODEL_CACHE_CAPACITY: 5 # Define cache capacity for LRU
+    depends_on:
+      - model-service
+      - attack-service
+    restart: on-failure
+
+  # Model Service
+  model-service:
+    build:
+      context: ./services/model-service
+      dockerfile: Dockerfile
+    ports:
+      - "8001:8001"
+    environment:
+      MODEL_CONFIG_PATH: /app/models
+      MODEL_CACHE_CAPACITY: 5 # Define cache capacity for LRU
+    restart: on-failure
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - capabilities: [gpu]
+
+  # Attack Service
+  attack-service:
+    build:
+      context: ./services/attack-service
+      dockerfile: Dockerfile
+    ports:
+      - "8002:8002"
+    environment:
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672/
+      MODEL_SERVICE_URL: http://model-service:8001
+      WEBHOOK_LISTENER_URL: http://webhook-listener:8003/webhook-receiver # New: URL for the listener
+    depends_on:
+      - rabbitmq
+      - model-service
+      - webhook-listener # New dependency
+    restart: on-failure
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - capabilities: [gpu]
+
+  # Frontend Service (React App)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      REACT_APP_API_BASE_URL: http://localhost:8000
+    depends_on:
+      - api-gateway
+    restart: on-failure
+
+  # Database Service (PostgreSQL)
+  postgres:
+    image: postgres:13
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: adversarial_sandbox_db
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: always
+
+  # Message Queue Service (RabbitMQ)
+  rabbitmq:
+    image: rabbitmq:3-management-alpine # Includes management UI on port 15672
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    restart: always
+
+  # New: Webhook Listener Service
+  webhook-listener:
+    build:
+      context: ./services/webhook-listener
+      dockerfile: Dockerfile
+    ports:
+      - "8003:8003"
+    environment:
+      FLASK_PORT: 8003
+      WEBHOOK_FAILURE_RATE: 0.2 # 20% chance of random failure for testing retries
+      WEBHOOK_PROCESSING_DELAY: 0.1 # Small delay
+      # ALWAYS_FAIL_WEBHOOK: "true" # Uncomment to force all webhooks to fail for testing
+    restart: on-failure
+
+volumes:
+  postgres_data:
+  rabbitmq_data:

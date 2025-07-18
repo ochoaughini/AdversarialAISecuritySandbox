@@ -1,0 +1,47 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+*.env
+.pytest_cache/
+.coverage
+.ipynb_checkpoints
+
+# Docker
+*.pem
+*.key
+
+# Node.js
+node_modules/
+build/
+.cache/
+.next/
+dist/
+tmp/
+
+# Logs
+*.log
+log/
+logs/
+
+# Database
+*.sqlite3
+*.db
+/postgres_data/
+
+# OS generated files
+.DS_Store
+.Trash
+Thumbs.db
+
+# Misc
+.env
+/.aws/
+/.terraform/
+*.tfstate
+*.tfstate.backup
+/terraform.tfvars

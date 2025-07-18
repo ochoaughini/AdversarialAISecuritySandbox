@@ -1,0 +1,120 @@
+name: CI/CD Pipeline - Build, Test, Scan & Deploy
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+env:
+  DOCKER_REGISTRY: docker.io
+  DOCKER_USERNAME: "${{ secrets.DOCKER_USERNAME }}"
+  DOCKER_PASSWORD: "${{ secrets.DOCKER_PASSWORD }}"
+  IMAGE_REPO_PREFIX: ai-adversarial-sandbox-pro
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: [api-gateway, model-service, attack-service, frontend]
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Login to DockerHub (or other registry)
+      if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop' # Only login on push to main/develop
+      uses: docker/login-action@v3
+      with:
+        username: "${{ env.DOCKER_USERNAME }}"
+        password: "${{ env.DOCKER_PASSWORD }}"
+        registry: "${{ env.DOCKER_REGISTRY }}"
+
+    - name: Build Docker image for ${{ matrix.service }}
+      id: build-image # Add an ID to reference outputs
+      run: |
+        SERVICE_PATH="./services/${{ matrix.service }}"
+        DOCKERFILE_PATH="$SERVICE_PATH/Dockerfile"
+        IMAGE_TAG="${{ env.DOCKER_REGISTRY }}/${{ env.IMAGE_REPO_PREFIX }}-${{ matrix.service }}:latest"
+
+        if [ "${{ matrix.service }}" == "frontend" ]; then
+          SERVICE_PATH="./frontend"
+          DOCKERFILE_PATH="$SERVICE_PATH/Dockerfile.dev" # Using dev Dockerfile for simplicity for now
+          IMAGE_TAG="${{ env.DOCKER_REGISTRY }}/${{ env.IMAGE_REPO_PREFIX }}-${{ matrix.service }}:latest-dev"
+        fi
+
+        docker build -t $IMAGE_TAG -f $DOCKERFILE_PATH $SERVICE_PATH
+        echo "::set-output name=image_tag::$IMAGE_TAG" # Output the built image tag
+
+        # Push only if it's a main or develop branch build (not on PR check run)
+        if [ "${{ github.ref }}" == "refs/heads/main" ] || [ "${{ github.ref }}" == "refs/heads/develop" ]; then
+          echo "Pushing $IMAGE_TAG"
+          docker push $IMAGE_TAG
+        else
+          echo "Skipping push for PR/other branch build."
+        fi
+
+    - name: Run SAST with Bandit (Python services only)
+      if: contains(fromJSON('["api-gateway", "model-service", "attack-service"]'), matrix.service)
+      run: |
+        pip install bandit
+        bandit -r services/${{ matrix.service }}
+      continue-on-error: true # Allow pipeline to continue even if scan finds issues, for now. Will be hardened later.
+
+    - name: Scan Docker Image for Vulnerabilities with Trivy
+      # Use trivy/trivy-action for easy integration
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: "${{ steps.build-image.outputs.image_tag }}" # Use the image built in previous step
+        format: 'table'
+        exit-code: '1' # Fail the job if critical vulnerabilities are found (can adjust)
+        ignore-unfixed: true # Only report fixed vulnerabilities
+        vuln-type: 'os,library'
+      continue-on-error: true # Allow pipeline to continue, for now. Will be hardened later.
+
+    - name: Run unit/integration tests for ${{ matrix.service }} (Placeholder)
+      run: |
+        if [ "${{ matrix.service }}" != "frontend" ]; then
+          echo "Running backend tests for ${{ matrix.service }}..."
+          pip install pytest # Ensure pytest is available
+          pytest tests/test_${{ matrix.service }}.py || true # Allow failure for now, will refine
+        else
+          echo "Running frontend tests for ${{ matrix.service }}..."
+          # cd frontend && npm install && npm test -- --ci --watchAll=false
+        fi
+
+  deploy:
+    needs: build-and-test # Depends on successful build and test of all services
+    runs-on: ubuntu-latest
+    environment: 
+      name: development # Example environment, could be staging, production
+      url: https://dev.adversarial-sandbox.com # Placeholder URL
+    if: github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/main' # Only deploy main/develop branches
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Configure Cloud Provider CLI (e.g., AWS EKS, GCP GKE, Azure AKS)
+      run: |
+        echo "Configuring cloud provider CLI for deployment..."
+        echo "Authentication with cloud provider secrets goes here."
+
+    - name: Deploy to Kubernetes Cluster (Conceptual)
+      run: |
+        echo "Deploying applications to Kubernetes cluster in ${{ github.ref_name }} environment..."
+        echo "Deployment script for ${{ github.ref_name }} environment would execute here."
+        echo "Images pushed: "
+        echo "- ${{ env.DOCKER_REGISTRY }}/${{ env.IMAGE_REPO_PREFIX }}-api-gateway:latest"
+        echo "- ${{ env.DOCKER_REGISTRY }}/${{ env.IMAGE_REPO_PREFIX }}-model-service:latest"
+        echo "- ${{ env.DOCKER_REGISTRY }}/${{ env.IMAGE_REPO_PREFIX }}-attack-service:latest"
+        echo "- ${{ env.DOCKER_REGISTRY }}/${{ env.IMAGE_REPO_PREFIX }}-frontend:latest-dev"
+        echo "Deployment to ${{ github.ref_name }} completed (conceptually)."
