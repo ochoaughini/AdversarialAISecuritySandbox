@@ -35,6 +35,21 @@ To run the automated tests locally:
     (Note: `textattack` and `torch` can be large. For quicker test runs, consider mocking their dependencies or running tests in dedicated CI environments where dependencies are pre-cached.)
 5.  Run all tests: `pytest tests/`
 
+## Licensing
+
+This AI Adversarial Sandbox is licensed under the **Business Source License 1.1 (BUSL 1.1)**.
+
+### Why BUSL 1.1?
+
+The choice of BUSL 1.1 reflects our commitment to building a sustainable and commercially viable SaaS product while maintaining a degree of transparency and future openness for the broader community.
+
+*   **Commercial Protection:** As a Software-as-a-Service (SaaS) platform, protecting our core business model is paramount. BUSL 1.1 allows anyone to view, use, modify, and distribute the source code for non-commercial purposes, but it specifically restricts providing the software as a competing commercial service. This ensures our ability to monetize the advanced features and managed infrastructure we provide.
+*   **Source-Available Transparency:** Unlike proprietary licenses, BUSL 1.1 keeps the source code publicly available. This allows security researchers, developers, and potential customers to inspect the code, understand its workings, and verify its integrity and quality. This transparency fosters trust and can encourage contributions and feedback that do not directly compete with the SaaS offering.
+*   **Future Openness:** A key feature of BUSL 1.1 is its time-based conversion. After a specified "Change Date" (in our case, **4 years** from the first public release), the entire codebase will automatically convert to the permissive **Apache License 2.0**. This provides a clear roadmap for the software to become fully open source in the future, allowing for unrestricted use and further community growth over time.
+*   **Compatibility:** All third-party libraries and frameworks used in this project are licensed under permissive open-source licenses (e.g., MIT, Apache 2.0), which are fully compatible with the Business Source License.
+
+For commercial licensing inquiries or if you wish to use the software as a competing service before the Change Date, please contact us at **info@lexsightllc.com**.
+
 ## Documentation
 
 - **Architecture:** `docs/architecture/README.md`

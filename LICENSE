@@ -1,0 +1,22 @@
+## Business Source License 1.1
+
+This is the Business Source License (https://mariadb.com/bsl11/).
+For further discussion, see Mariadb's BSL explanation: https://mariadb.com/bsl11-faq-busl/
+
+The Licensor (as defined below) hereby grants you a non-exclusive, worldwide, royalty-free, perpetual, non-sublicensable license to use, copy, distribute, make available, and prepare derivative works of the Software, provided that such use, copying, distribution, making available, or preparation of derivative works:
+(a) is not for the purpose of providing a commercial offering of the Software as a service;
+(b) does not involve the distribution of the Software or any derivative work thereof to any person other than to an employee or contractor of the Licensee, to the extent such employee or contractor is working on behalf of the Licensee; and
+(c) occurs before the Change Date (as defined below).
+
+The Licensor is: **LexsightLLC**
+
+The Change Date is: The date **4 (four) years** from the first publicly available distribution of the Software by the Licensor.
+
+The Change License is: **Apache License 2.0**
+
+Upon the Change Date, the Software shall be subject to the Change License.
+
+The foregoing license does not include any right to sublicense. For commercial licenses and additional rights, please contact **info@lexsightllc.com**.
+
+## NOTICE
+This software is provided "as is", without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose and noninfringement. In no event shall the authors or copyright holders be liable for any claim, damages or other liability, whether in an action of contract, tort or otherwise, arising from, out of or in connection with the software or the use or other dealings in the software.
